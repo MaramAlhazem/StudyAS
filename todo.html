@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TO-DO List</title>
+    <link rel="stylesheet" type="text/css" href="todolistCSS.css">
+</head>
+<body>
+    <h1>TO-DO List</h1>
+    <p>Track your tasks and mark them as completed.<br>
+         <strong>Note:</strong> The list will be saved as long as the device is on. It will reset if the device shuts down.</p>
+
+    <!-- Task Input -->
+    <form id="task-form">
+        <input type="text" id="task-input" placeholder="Enter a new task" required>
+        <button type="button" onclick="addTask()">Add Task</button>
+    </form>
+
+    <!-- Task List -->
+    <ul id="task-list"></ul>
+
+    <!-- Back to Home Page -->
+    <div>
+        <button onclick="redirectToHome()">Back to Home Page</button>
+    </div>
+    
+    <script>
+        // Load tasks from localStorage on page load
+        window.onload = loadTasks;
+
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskText = taskInput.value.trim();
+
+            if (taskText === '') {
+                alert('Please enter a valid task.');
+                return;
+            }
+
+            // Create a new task element
+            const taskItem = createTaskElement(taskText, false);
+
+            // Append to the task list
+            document.getElementById('task-list').appendChild(taskItem);
+
+            // Save to localStorage
+            saveTasks();
+
+            // Clear the input
+            taskInput.value = '';
+        }
+
+        function createTaskElement(taskText, isCompleted) {
+            const taskItem = document.createElement('li');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = isCompleted;
+            checkbox.addEventListener('change', saveTasks); // Save tasks whenever a checkbox changes
+
+            const label = document.createElement('label');
+            label.textContent = taskText;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function () {
+                taskItem.remove();
+                saveTasks(); // Save after deletion
+            };
+
+            taskItem.appendChild(checkbox);
+            taskItem.appendChild(label);
+            taskItem.appendChild(deleteButton);
+
+            return taskItem;
+        }
+
+        function saveTasks() {
+            const taskList = document.getElementById('task-list');
+            const tasks = [];
+
+            // Save each task with its completion status
+            for (const taskItem of taskList.children) {
+                const checkbox = taskItem.querySelector('input[type="checkbox"]');
+                const label = taskItem.querySelector('label');
+                tasks.push({ text: label.textContent, completed: checkbox.checked });
+            }
+
+            // Save to localStorage
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+                const tasks = JSON.parse(savedTasks);
+                for (const task of tasks) {
+                    const taskItem = createTaskElement(task.text, task.completed);
+                    document.getElementById('task-list').appendChild(taskItem);
+                }
+            }
+        }
+        function redirectToHome() {
+            window.location.href = "studyAssistant.html"; // Redirect to Home page
+        }
+
+    </script>
+</body>
+</html>

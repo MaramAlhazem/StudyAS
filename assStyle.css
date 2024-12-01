@@ -1,0 +1,93 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* Header Section */
+h1 {
+    font-size: 3em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 1.5em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* Buttons Container */
+.buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* المسافة بين الأزرار */
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Button Styles */
+button {
+    background-color: #3498db;
+    color: white;
+    font-size: 1em;
+    padding: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 250px; /* عرض ثابت لجميع الأزرار */
+    height: 100px; /* ارتفاع ثابت لجميع الأزرار */
+    text-align: center;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: scale(1.02);
+}
+
+/* Anchor Styles within Buttons */
+button a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+button a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2.5em;
+    }
+
+    h3 {
+        font-size: 1.2em;
+    }
+
+    .buttons {
+        flex-direction: column; /* تصبح الأزرار تحت بعضها عند الشاشات الصغيرة */
+    }
+
+    button {
+        font-size: 1em;
+        padding: 15px;
+        width: 100%;
+    }
+}

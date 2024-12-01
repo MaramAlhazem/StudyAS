@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" type="text/css" href="timeCSS.css">
+    <style>
+        #alert-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #ffcccb;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            z-index: 1000;
+        }
+        #alert-box button {
+            margin-top: 10px;
+            padding: 5px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pomodoro Timer</h1>
+    
+    <!-- Time options -->
+    <div id="time-options">
+        <label for="study-time">Choose Study Time per Session (minutes):</label>
+        <select id="study-time">
+            <option value="25">25</option>
+            <option value="custom">Custom time</option>
+        </select>
+        <input type="number" id="custom-study-time" placeholder="Enter custom time" min="1" style="display:none;" />
+
+        <br><br>
+
+        <label for="break-time">Enter Break Time (minutes):</label>
+        <input type="number" id="break-time" placeholder="Enter break time" min="1" value="5">
+        
+        <br><br>
+
+        <button id="start-button" onclick="startSession()">Start Timer</button>
+        <button id="stop-button" onclick="stopTimer()" style="display:none;">Stop Timer</button> <!-- Stop Timer button -->
+        <button id="take-break-button" onclick="takeBreak()" style="display:none;">Take Break</button> <!-- Take Break button -->
+    </div>
+
+    <h2 id="timer">00:00</h2>
+    <p id="status">Press "Start Timer" to begin.</p>
+    <p id="study-time-tracker">Total Study Time: 0 minutes</p> <!-- To display the total study time -->
+
+    <!-- Alert Box -->
+    <div id="alert-box">
+        <p id="alert-message"></p>
+        <button onclick="closeAlert()">OK</button>
+    </div>
+    <div>
+        <button onclick="redirectToHome()">Back to Home Page</button>
+    </div>
+    <script>
+        let timerInterval;
+        let studyTime = 25 * 60;  // Default study time in seconds (25 minutes)
+        let breakTime = 5 * 60;   // Default break time in seconds (5 minutes)
+        let remainingTime;
+        let totalStudyTime = 0;   // Variable to track the total study time in seconds
+        let isTimerRunning = false; // Flag to check if the timer is running
+        let isBreakTime = false;   // Flag to check if it's break time
+
+        // Toggle custom study time input based on selection
+        document.getElementById('study-time').addEventListener('change', function () {
+            if (this.value === 'custom') {
+                document.getElementById('custom-study-time').style.display = 'inline';
+            } else {
+                document.getElementById('custom-study-time').style.display = 'none';
+            }
+        });
+
+        function startSession() {
+            if (isTimerRunning) return; // Don't start a new timer if one is already running
+
+            const selectedStudyTime = document.getElementById('study-time').value;
+            const customStudyTime = document.getElementById('custom-study-time').value;
+
+            // If custom study time is selected, use the custom value
+            if (selectedStudyTime === 'custom' && customStudyTime) {
+                studyTime = customStudyTime * 60; // Convert minutes to seconds
+            } else if (selectedStudyTime === '5') {
+                // If 5 minutes per slide is selected
+                studyTime = 25 * 60; // Example: 25 minutes total for study (you can change this based on slides logic)
+            }
+
+            breakTime = parseInt(document.getElementById('break-time').value) * 60; // Break time in seconds
+
+            // Start the timer
+            remainingTime = studyTime;
+            document.getElementById('status').textContent = 'Session started!';
+            updateTimerDisplay(remainingTime);
+            isTimerRunning = true;  // Mark the timer as running
+
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay(remainingTime);
+
+                if (remainingTime <= 0 && !isBreakTime) {
+                    clearInterval(timerInterval);
+                    totalStudyTime += studyTime;  // Add study time to the total
+                    document.getElementById('study-time-tracker').textContent = `Total Study Time: ${Math.floor(totalStudyTime / 60)} minutes`;
+                    showAlert("Session is over! Click 'Take Break' to start your break.");
+                    document.getElementById('take-break-button').style.display = 'inline'; // Show Take Break button
+                    document.getElementById('stop-button').style.display = 'none'; // Hide Stop button
+                }
+            }, 1000);
+
+            document.getElementById('start-button').style.display = 'none'; // Hide start button while timer is running
+            document.getElementById('stop-button').style.display = 'inline'; // Show stop button
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);  // Stop the timer
+            isTimerRunning = false;
+            remainingTime = 0;  // Reset the time
+            updateTimerDisplay(remainingTime);  // Update the display
+            document.getElementById('status').textContent = 'Timer stopped.';
+
+            // Hide buttons according to the current state
+            document.getElementById('start-button').style.display = 'inline'; // Show start button
+            document.getElementById('stop-button').style.display = 'none'; // Hide stop button
+            document.getElementById('take-break-button').style.display = 'none'; // Hide Take Break button
+        }
+
+        function updateTimerDisplay(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            document.getElementById('timer').textContent =
+                `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alert-box');
+            document.getElementById('alert-message').textContent = message;
+            alertBox.style.display = 'block';
+        }
+
+        function closeAlert() {
+            const alertBox = document.getElementById('alert-box');
+            alertBox.style.display = 'none';
+        }
+
+        function takeBreak() {
+            // Switch to break time
+            isBreakTime = true;
+            remainingTime = breakTime;
+            updateTimerDisplay(remainingTime);
+
+            document.getElementById('status').textContent = 'Break time started! Relax and take a rest.';
+
+            // Start break timer after showing alert
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay(remainingTime);
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    isBreakTime = false; // End break time
+                    showAlert("Break is over! Time to study again.");
+                    document.getElementById('start-button').style.display = 'inline'; // Show start button again
+                    document.getElementById('stop-button').style.display = 'none'; // Hide stop button
+                    isTimerRunning = false; // Reset the timer state after break
+                }
+            }, 1000);
+
+            // Hide the Take Break button after break starts
+            document.getElementById('take-break-button').style.display = 'none';
+        }
+
+    
+        function redirectToHome() {
+            window.location.href = "studyAssistant.html"; // Redirect to Home page
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
